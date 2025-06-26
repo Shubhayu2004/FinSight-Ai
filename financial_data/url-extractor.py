@@ -1,10 +1,12 @@
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-import time
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
 
-# Use a raw string for Windows paths to avoid unicode errors
-PATH = r"C:\Users\shubh\Downloads\chromedriver-win64\chromedriver-win64\chromedriver.exe"  
+PATH = r"C:\Users\shubh\Downloads\chromedriver-win64\chromedriver-win64\chromedriver.exe"
 
 options = webdriver.ChromeOptions()
 options.add_argument("--headless")
@@ -26,11 +28,14 @@ with open("company_urls.txt", 'a') as f:
     for company in companies:
         try:
             driver.get(URL)
-            driver.find_element("id", search_id).clear()
-            input_s = driver.find_element("id", search_id)
+            # Wait up to 10 seconds for the element to be present
+            input_s = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.ID, search_id))
+            )
+            input_s.clear()
             input_s.send_keys(company)
             time.sleep(1)
-            driver.find_element("xpath", xpath).click()
+            driver.find_element(By.XPATH, xpath).click()
             f.write(driver.current_url + "\n")
             print(f"done: {company}")
         except Exception as e:
