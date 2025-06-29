@@ -1,0 +1,20 @@
+fastapi
+uvicorn
+requests
+beautifulsoup4
+selenium
+pdfplumber
+pymupdf
+python-dotenv
+sqlalchemy
+pydantic
+httpx
+langchain
+openai
+unsloth
+peft
+transformers
+trl
+faiss-cpu
+psycopg2-binary # for PostgreSQL (optional)
+pandas 
