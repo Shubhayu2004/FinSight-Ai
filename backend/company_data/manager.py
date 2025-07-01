@@ -11,7 +11,7 @@ from .api_clients.yahoo_finance import yahoo_finance_client
 class CompanyDataManager:
     """Manager for company data from multiple sources"""
     
-    def __init__(self, csv_path: str = "../financial_data/ind_nifty500list.csv"):
+    def __init__(self, csv_path: str = "ind_nifty500list.csv"):
         self.csv_path = csv_path
         self.companies = []
         self.companies_dict = {}  # symbol -> Company mapping
