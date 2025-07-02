@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BSE Company Details Viewer</title>
+</head>
+<body>
+  <h1>BSE Company Details Viewer</h1>
+  <label for="companyDropdown">Select a company:</label>
+  <select id="companyDropdown">
+    <option value="">Loading...</option>
+  </select>
+  <button onclick="showDetails()">Show Details</button>
+  <div id="details"></div>
+
+  <script>
+    // Fetch the list of companies and populate the dropdown
+    fetch('http://localhost:8000/api/companies/dropdown')
+      .then(res => res.json())
+      .then(data => {
+        const dropdown = document.getElementById('companyDropdown');
+        dropdown.innerHTML = ""; // Clear loading option
+        data.forEach(company => {
+          const option = document.createElement('option');
+          option.value = company.symbol;
+          option.text = `${company.symbol} - ${company.name}`;
+          dropdown.appendChild(option);
+        });
+      });
+
+    // When the button is clicked, fetch and display all details for the selected company
+    function showDetails() {
+      const dropdown = document.getElementById('companyDropdown');
+      const symbol = dropdown.value;
+      const detailsElem = document.getElementById('details');
+      if (!symbol) {
+        detailsElem.textContent = "Please select a company.";
+        return;
+      }
+      detailsElem.textContent = "Loading...";
+      fetch(`http://localhost:8000/api/companies/${encodeURIComponent(symbol)}`)
+        .then(res => {
+          if (!res.ok) throw new Error('Not found');
+          return res.json();
+        })
+        .then(data => {
+          // Display all details in a table
+          let html = '<table border="1" cellpadding="5">';
+          for (const key in data) {
+            html += `<tr><th>${key}</th><td>${data[key]}</td></tr>`;
+          }
+          html += '</table>';
+          detailsElem.innerHTML = html;
+        })
+        .catch(() => {
+          detailsElem.textContent = "Company details not found.";
+        });
+    }
+  </script>
+</body>
+</html>
