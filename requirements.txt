@@ -1,20 +1,40 @@
+# Core dependencies for annual report processing
+PyMuPDF
+pdfplumber
+
+# Text processing and NLP
+spacy
+nltk
+regex
+
+# LLM clients and AI - FinAgent specific
+transformers
+peft
+torch
+accelerate
+openai
+requests
+
+# FastAPI and web framework
 fastapi
 uvicorn
-requests
-beautifulsoup4
-selenium
-pdfplumber
-pymupdf
-python-dotenv
-sqlalchemy
+python-multipart
 pydantic
-httpx
-langchain
-openai
-unsloth
-peft
-transformers
-trl
-faiss-cpu
-psycopg2-binary # for PostgreSQL (optional)
-pandas 
+
+# Utilities
+python-dotenv
+pathlib2
+dataclasses-json
+
+# Optional: For better text processing
+# Uncomment if you want to use these additional features
+sentence-transformers
+scikit-learn
+pandas
+numpy
+
+# Development and testing
+pytest
+pytest-asyncio
+black
+flake8 

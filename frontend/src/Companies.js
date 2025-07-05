@@ -55,6 +55,8 @@ function Companies() {
     }
     setReportLoading(true);
     setReportError("");
+    
+    // Use the symbol directly (not the full name)
     fetch(`http://localhost:8000/api/companies/${encodeURIComponent(selectedSymbol)}/annual_report`)
       .then((res) => {
         if (!res.ok) throw new Error("Not found");

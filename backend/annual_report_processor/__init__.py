@@ -1,0 +1,54 @@
+"""
+Annual Report Processor Package
+
+A comprehensive system for extracting information from annual reports and 
+interacting with fine-tuned LLMs (FinAgent) for financial analysis.
+
+Components:
+- PDFParser: Extract text and sections from PDF files
+- TextProcessor: Process and chunk text for LLM consumption
+- LLMClient: Interface with various LLM providers
+- AnnualReportProcessor: Main orchestrator for the entire pipeline
+
+Usage:
+    from annual_report_processor import AnnualReportProcessor
+    
+    # Initialize processor
+    processor = AnnualReportProcessor(llm_client_type="finagent")
+    
+    # Process and query an annual report
+    result = processor.query_annual_report(
+        pdf_path="TCS_Annual_Report_2023.pdf",
+        query="How did the company perform in North America?"
+    )
+"""
+
+from .processor import AnnualReportProcessor
+from .pdf_parser import PDFParser
+from .text_processor import TextProcessor, TextChunk
+from .llm_client import (
+    FinAgentClient, 
+    create_llm_client,
+    LLMClient,
+    OpenAILLMClient,
+    HuggingFaceLLMClient,
+    LocalLLMClient,
+    FinAgentLLMClient
+)
+
+__version__ = "1.0.0"
+__author__ = "AI Finance Agent Team"
+
+__all__ = [
+    "AnnualReportProcessor",
+    "PDFParser", 
+    "TextProcessor",
+    "TextChunk",
+    "FinAgentClient",
+    "create_llm_client",
+    "LLMClient",
+    "OpenAILLMClient",
+    "HuggingFaceLLMClient",
+    "LocalLLMClient",
+    "FinAgentLLMClient"
+] 

@@ -7,8 +7,10 @@ import math
 import requests
 import importlib.util
 from urllib.parse import quote
+import traceback
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Create the FastAPI app
 app = FastAPI(title="AI Finance Agent API")
 app.add_middleware(
     CORSMiddleware,
@@ -17,7 +19,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# Path to the CSV file (relative to this file)
+
 CSV_PATH = os.path.join(os.path.dirname(__file__), '../company data/archive/BSE_Equity.csv')
 REPORTS_DIR = os.path.join(os.path.dirname(__file__), '../company data/archive/reports')
 os.makedirs(REPORTS_DIR, exist_ok=True)
@@ -59,46 +61,47 @@ def get_company_details(symbol: str):
             row[k] = None
     return row
 
-@app.get("/api/companies/{company_name}/annual_report")
-def get_annual_report(company_name: str):
-    df = load_companies()
-    # Find the row by issuer name (case-insensitive)
-    company_row = df[df['Issuer Name'].str.lower() == company_name.lower()]
-    if company_row.empty:
-        raise HTTPException(status_code=404, detail="Company not found in database")
-    symbol = company_row.iloc[0]['Security Id']
-    issuer = company_row.iloc[0]['Issuer Name']
-    # NSE API call
-    nse_url = (
-        f"https://www.nseindia.com/api/annual-reports?index=equities&symbol={symbol}&issuer={quote(issuer)}"
-    )
-    headers = {
-        "User-Agent": "Mozilla/5.0",
-        "Referer": "https://www.nseindia.com/companies-listing/corporate-filings-annual-reports"
-    }
-    session = requests.Session()
-    session.get("https://www.nseindia.com", headers=headers)
-    resp = session.get(nse_url, headers=headers)
+@app.get("/api/companies/{symbol}/annual_report")
+def get_annual_report(symbol: str):
     try:
-        data = resp.json()
-    except Exception:
-        raise HTTPException(status_code=500, detail="Failed to parse NSE response")
-    if not data.get("data"):
-        raise HTTPException(status_code=404, detail="No annual report found on NSE")
-    latest_report = data["data"][0]["fileName"]
-    # Download the PDF/ZIP
-    ext = os.path.splitext(latest_report)[1]
-    safe_name = company_name.replace(" ", "_").replace("/", "_")
-    pdf_path = os.path.join(REPORTS_DIR, f"{safe_name}_annual_report{ext}")
-    try:
-        file_resp = session.get(latest_report, stream=True, timeout=30)
-        with open(pdf_path, "wb") as f:
-            for chunk in file_resp.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
+        # Dynamically import the scraper
+        scraper_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), '../company data/annual report scraper.py')
+        )
+        spec = importlib.util.spec_from_file_location("annual_report_scraper", scraper_path)
+        if spec is None or spec.loader is None:
+            print("Failed to import annual_report_scraper module.")
+            raise HTTPException(status_code=500, detail="Failed to import scraper module.")
+        scraper = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(scraper)
+        
+        print(f"Fetching annual report for symbol: {symbol}")
+        
+        # Create download path
+        safe_name = symbol.replace(" ", "_").replace("/", "_")
+        download_path = os.path.join(REPORTS_DIR, f"{safe_name}_annual_report.pdf")
+        
+        # Call the scraper function
+        result = scraper.scrape_nse_latest_annual_report(symbol, download_path, headless=True)
+        
+        if not result.get('success'):
+            print(f"No annual report found for symbol: {symbol}")
+            raise HTTPException(status_code=404, detail=result.get('error', 'No annual report found on NSE'))
+        
+        print(f"Latest report file link: {result.get('pdf_url')}")
+        print(f"Report title: {result.get('title')}")
+        
+        if 'local_path' in result:
+            print(f"PDF downloaded to: {result['local_path']}")
+            return {"view_url": f"/api/companies/{symbol}/annual_report/view"}
+        else:
+            # If download failed, return the direct PDF URL
+            return {"pdf_url": result.get('pdf_url'), "title": result.get('title')}
+            
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to download report: {e}")
-    return {"view_url": f"/api/companies/{company_name}/annual_report/view"}
+        print(f"Error in get_annual_report: {e}")
+        traceback.print_exc()
+        raise
 
 @app.get("/api/companies/{company_name}/annual_report/view")
 def view_annual_report(company_name: str):
