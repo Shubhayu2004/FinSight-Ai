@@ -2,19 +2,19 @@
 Annual Report Processor Package
 
 A comprehensive system for extracting information from annual reports and 
-interacting with fine-tuned LLMs (FinAgent) for financial analysis.
+interacting with FinGPT 7B for financial analysis.
 
 Components:
 - PDFParser: Extract text and sections from PDF files
 - TextProcessor: Process and chunk text for LLM consumption
-- LLMClient: Interface with various LLM providers
+- LLMClient: Interface with various LLM providers (FinGPT, OpenAI, etc.)
 - AnnualReportProcessor: Main orchestrator for the entire pipeline
 
 Usage:
     from annual_report_processor import AnnualReportProcessor
     
-    # Initialize processor
-    processor = AnnualReportProcessor(llm_client_type="finagent")
+    # Initialize processor with FinGPT
+    processor = AnnualReportProcessor(llm_client_type="fingpt")
     
     # Process and query an annual report
     result = processor.query_annual_report(
@@ -33,7 +33,7 @@ from .llm_client import (
     OpenAILLMClient,
     HuggingFaceLLMClient,
     LocalLLMClient,
-    FinAgentLLMClient
+    FinGPTLLMClient
 )
 
 __version__ = "1.0.0"
@@ -50,5 +50,5 @@ __all__ = [
     "OpenAILLMClient",
     "HuggingFaceLLMClient",
     "LocalLLMClient",
-    "FinAgentLLMClient"
+    "FinGPTLLMClient"
 ] 

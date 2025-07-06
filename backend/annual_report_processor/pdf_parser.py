@@ -8,7 +8,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class PDFParser:
-    """PDF parser for annual reports with section extraction capabilities."""
     
     def __init__(self):
         # Common section headers in annual reports

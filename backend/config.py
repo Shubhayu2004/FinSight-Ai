@@ -1,15 +1,19 @@
-"""
-Configuration file for the Annual Report Processor
-"""
-
 import os
 from pathlib import Path
 
-# Base directory (backend folder)
 BASE_DIR = Path(__file__).parent
 
-# Model paths
-FINAGENT_MODEL_PATH = BASE_DIR / ".." / "llm fine tune" / "l3_finagent_step60" / "l3_finagent_step60"
+# FinGPT model configuration - using open-access models as fallback
+# Note: Llama-2-7b-chat-hf requires access approval from Meta
+FINGPT_MODEL_NAME = "microsoft/DialoGPT-medium"  # Fallback open model
+LLAMA2_MODEL_NAME = "meta-llama/Llama-2-7b-chat-hf"  # Requires access approval
+
+# PEFT adapter configuration
+PEFT_ADAPTER_NAME = "FinGPT/fingpt-forecaster_dow30_llama2-7b_lora"
+
+# Local model cache configuration
+MODEL_CACHE_DIR = BASE_DIR / ".." / "models"  # Local cache directory
+USE_LOCAL_CACHE = True  # Whether to use local cache
 
 # Reports directory
 REPORTS_DIR = BASE_DIR / ".." / "Reports"
@@ -24,18 +28,23 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 
 # LLM Configuration
 LLM_CONFIG = {
-    "finagent": {
-        "model_path": str(FINAGENT_MODEL_PATH),
+    "fingpt": {
+        "model_name": FINGPT_MODEL_NAME,  # Uses fallback model
         "device": "auto",
         "max_context_tokens": 4000,
         "max_new_tokens": 512,
         "temperature": 0.7,
-        "top_p": 0.9
+        "top_p": 0.9,
+        "cache_dir": str(MODEL_CACHE_DIR) if USE_LOCAL_CACHE else None
     },
-    "openai": {
-        "model": "gpt-3.5-turbo",
-        "max_tokens": 1000,
-        "temperature": 0.3
+    "llama2": {
+        "model_name": LLAMA2_MODEL_NAME,  # Gated model
+        "device": "auto",
+        "max_context_tokens": 4000,
+        "max_new_tokens": 512,
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "cache_dir": str(MODEL_CACHE_DIR) if USE_LOCAL_CACHE else None
     },
     "huggingface": {
         "model_name": "microsoft/DialoGPT-medium",
@@ -60,20 +69,28 @@ API_CONFIG = {
     "reload": True
 }
 
-def get_model_path(model_type: str = "finagent") -> str:
-    """Get the model path for the specified model type."""
-    if model_type == "finagent":
-        return str(FINAGENT_MODEL_PATH)
-    return LLM_CONFIG.get(model_type, {}).get("model_path", "")
+def setup_model_cache():
+    if USE_LOCAL_CACHE and MODEL_CACHE_DIR.exists():
+        os.environ['HF_HOME'] = str(MODEL_CACHE_DIR.absolute())
+        os.environ['TRANSFORMERS_CACHE'] = str(MODEL_CACHE_DIR.absolute())
+        return True
+    return False
+
+def get_model_name(model_type: str = "fingpt") -> str:
+    return LLM_CONFIG.get(model_type, {}).get("model_name", FINGPT_MODEL_NAME)
+
+def get_cache_dir(model_type: str = "fingpt") -> str:
+    return LLM_CONFIG.get(model_type, {}).get("cache_dir")
 
 def validate_paths():
-    """Validate that all required paths exist."""
     paths_to_check = {
-        "FinAgent Model": FINAGENT_MODEL_PATH,
         "Reports Directory": REPORTS_DIR,
         "Cache Directory": CACHE_DIR,
         "Upload Directory": UPLOAD_DIR
     }
+    
+    if USE_LOCAL_CACHE:
+        paths_to_check["Model Cache Directory"] = MODEL_CACHE_DIR
     
     missing_paths = []
     for name, path in paths_to_check.items():
@@ -94,7 +111,16 @@ if __name__ == "__main__":
     print("=" * 30)
     validate_paths()
     
-    print(f"\nFinAgent Model Path: {FINAGENT_MODEL_PATH}")
+    print(f"\nFinGPT Model Name: {FINGPT_MODEL_NAME}")
+    print(f"Llama-2 Model Name: {LLAMA2_MODEL_NAME}")
+    print(f"Model Cache Directory: {MODEL_CACHE_DIR}")
+    print(f"Use Local Cache: {USE_LOCAL_CACHE}")
     print(f"Reports Directory: {REPORTS_DIR}")
     print(f"Cache Directory: {CACHE_DIR}")
-    print(f"Upload Directory: {UPLOAD_DIR}") 
+    print(f"Upload Directory: {UPLOAD_DIR}")
+    
+    if USE_LOCAL_CACHE:
+        setup_model_cache()
+        print(f"\n✅ Model cache environment variables set:")
+        print(f"   HF_HOME: {os.environ.get('HF_HOME', 'Not set')}")
+        print(f"   TRANSFORMERS_CACHE: {os.environ.get('TRANSFORMERS_CACHE', 'Not set')}") 

@@ -7,13 +7,13 @@ spacy
 nltk
 regex
 
-# LLM clients and AI - FinAgent specific
+# LLM clients and AI - FinGPT specific
 transformers
-peft
-torch
+torch>=2.2,<3.0
 accelerate
-openai
+peft
 requests
+huggingface_hub[hf_xet]
 
 # FastAPI and web framework
 fastapi
@@ -31,10 +31,14 @@ dataclasses-json
 sentence-transformers
 scikit-learn
 pandas
-numpy
+numpy>=1.26.0,<2.2.0
 
 # Development and testing
 pytest
 pytest-asyncio
 black
-flake8 
+flake8
+
+# Additional dependencies that might be needed
+packaging>=20,<25
+torchvision 

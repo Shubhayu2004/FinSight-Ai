@@ -14,7 +14,7 @@ class AnnualReportProcessor:
     """Main processor for handling annual report analysis with FinAgent."""
     
     def __init__(self, 
-                 llm_client_type: str = "openai",
+                 llm_client_type: str = "fingpt",
                  llm_client_kwargs: Optional[Dict[str, Any]] = None,
                  max_context_tokens: int = 4000,
                  cache_dir: str = "cache"):
