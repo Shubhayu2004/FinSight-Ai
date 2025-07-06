@@ -7,7 +7,7 @@ interacting with FinGPT 7B for financial analysis.
 Components:
 - PDFParser: Extract text and sections from PDF files
 - TextProcessor: Process and chunk text for LLM consumption
-- LLMClient: Interface with various LLM providers (FinGPT, OpenAI, etc.)
+- LLMClient: Interface with various LLM providers (FinGPT, HuggingFace, etc.)
 - AnnualReportProcessor: Main orchestrator for the entire pipeline
 
 Usage:
@@ -30,7 +30,6 @@ from .llm_client import (
     FinAgentClient, 
     create_llm_client,
     LLMClient,
-    OpenAILLMClient,
     HuggingFaceLLMClient,
     LocalLLMClient,
     FinGPTLLMClient
@@ -47,7 +46,6 @@ __all__ = [
     "FinAgentClient",
     "create_llm_client",
     "LLMClient",
-    "OpenAILLMClient",
     "HuggingFaceLLMClient",
     "LocalLLMClient",
     "FinGPTLLMClient"

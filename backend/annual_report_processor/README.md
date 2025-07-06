@@ -125,11 +125,11 @@ processor = AnnualReportProcessor(
 
 ### Alternative LLM Clients
 
-#### OpenAI (Fallback)
+#### HuggingFace (Fallback)
 ```python
 processor = AnnualReportProcessor(
-    llm_client_type="openai",
-    llm_client_kwargs={"model": "gpt-3.5-turbo"}
+    llm_client_type="huggingface",
+    llm_client_kwargs={"model_name": "microsoft/DialoGPT-medium"}
 )
 ```
 

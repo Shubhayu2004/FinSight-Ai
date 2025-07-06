@@ -458,8 +458,8 @@ if __name__ == "__main__":
     # client = create_llm_client("fingpt")
     # finagent = FinAgentClient(client)
     
-    # Example with OpenAI
-    # client = create_llm_client("openai", model="gpt-3.5-turbo")
+    # Example with HuggingFace model
+    # client = create_llm_client("huggingface", model_name="microsoft/DialoGPT-medium")
     # finagent = FinAgentClient(client)
     
     # Example with local model

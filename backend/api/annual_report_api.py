@@ -78,7 +78,19 @@ async def get_model_info():
     try:
         if hasattr(processor.llm_client, 'get_model_info'):
             model_info = processor.llm_client.get_model_info()
-            return ModelInfoResponse(**model_info)
+            
+            # Map the fields from LLM client to expected response model
+            mapped_info = {
+                "model_path": model_info.get("model_name", "N/A"),
+                "base_model": model_info.get("model_name", "N/A"),
+                "adapter_type": "PEFT LoRA" if model_info.get("uses_peft", False) else "None",
+                "device": model_info.get("device", "N/A"),
+                "parameters": 7000000000 if "7B" in str(model_info.get("parameters", "")) else 0,  # Convert to integer
+                "trainable_parameters": 7000000000 if model_info.get("uses_peft", False) else 0,
+                "status": "Loaded" if processor.llm_client.is_available() else "Not available"
+            }
+            
+            return ModelInfoResponse(**mapped_info)
         else:
             return ModelInfoResponse(
                 model_path="N/A",

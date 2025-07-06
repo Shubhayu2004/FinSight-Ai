@@ -210,13 +210,82 @@ python utils/download_models.py --adapters FinGPT/fingpt-forecaster_dow30_llama2
 
 2. **Start the backend server**:
    ```bash
+   # Using the startup script (recommended)
+   python start_backend.py
+   
+   # Or directly with uvicorn
    cd backend
-   uvicorn api.main:app --reload
+   uvicorn main:app --reload
    ```
 
-3. **Upload annual reports** through the web interface
+3. **Test the backend API**:
+   ```bash
+   python utils/test_backend.py
+   ```
 
-4. **Ask questions** about the financial data
+4. **Access the API**:
+   - **API Documentation**: http://localhost:8000/docs
+   - **Health Check**: http://localhost:8000/health
+   - **Model Info**: http://localhost:8000/model-info
+
+5. **Upload annual reports** through the web interface or API
+
+6. **Ask questions** about the financial data
+
+## 🔌 API Endpoints
+
+### Core Endpoints
+
+- **`GET /`** - API information and available endpoints
+- **`GET /health`** - Health check and system status
+- **`GET /model-info`** - FinGPT model information
+- **`POST /test-model`** - Test the model with a simple query
+
+### File Management
+
+- **`POST /upload-pdf`** - Upload a PDF file for processing
+- **`GET /uploaded-files`** - List uploaded PDF files
+- **`DELETE /uploaded-files/{filename}`** - Delete an uploaded file
+- **`GET /view-pdf/{filename}`** - View an uploaded PDF
+
+### Report Processing
+
+- **`POST /process-report`** - Process an uploaded PDF file
+- **`POST /query-report`** - Query the FinGPT model about a report
+- **`GET /available-sections/{filename}`** - Get available sections in a report
+- **`GET /financial-summary/{filename}`** - Get financial summary from a report
+
+### Conversation Management
+
+- **`GET /conversation-history`** - Get conversation history
+- **`DELETE /conversation-history`** - Clear conversation history
+
+### Example API Usage
+
+**Upload and process a PDF:**
+```bash
+# Upload PDF
+curl -X POST "http://localhost:8000/upload-pdf" \
+  -H "accept: application/json" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@annual_report.pdf"
+
+# Process the report
+curl -X POST "http://localhost:8000/process-report" \
+  -H "accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{"pdf_filename": "annual_report.pdf", "force_reprocess": false}'
+
+# Query the report
+curl -X POST "http://localhost:8000/query-report" \
+  -H "accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "pdf_filename": "annual_report.pdf",
+    "query": "What is the company revenue and profit margin?",
+    "company_name": "Example Corp"
+  }'
+```
 
 ## 📊 Supported Models
 
@@ -236,6 +305,37 @@ python utils/download_models.py --adapters FinGPT/fingpt-forecaster_dow30_llama2
 3. **CUDA Errors**: Update NVIDIA drivers and PyTorch
 4. **Access Denied**: Request Llama-2 access from Meta
 5. **Slow Loading**: Download models locally using the download scripts
+6. **Backend Won't Start**: Check if port 8000 is available
+
+### Backend Issues
+
+**Server won't start:**
+```bash
+# Check if port is in use
+netstat -an | grep 8000
+
+# Use different port
+cd backend
+uvicorn main:app --port 8001 --reload
+```
+
+**Model not loading:**
+```bash
+# Test model separately
+python utils/test_model_loading.py
+
+# Check model cache
+python utils/download_models.py --info
+```
+
+**API tests failing:**
+```bash
+# Check server is running
+curl http://localhost:8000/health
+
+# Test individual endpoints
+curl http://localhost:8000/model-info
+```
 
 ### Dependencies
 
@@ -244,6 +344,8 @@ Key packages:
 - `torch`: PyTorch for model inference
 - `peft`: Parameter-efficient fine-tuning
 - `accelerate`: Model optimization
+- `fastapi`: Web framework
+- `uvicorn`: ASGI server
 
 ### Getting Llama-2 Access
 
@@ -265,6 +367,11 @@ Key packages:
 1. Use fallback model for testing (lower memory)
 2. Enable model quantization in config
 3. Use CPU inference if GPU memory is limited
+
+**For API performance:**
+1. Use connection pooling for multiple requests
+2. Implement caching for processed reports
+3. Use background tasks for long-running operations
 
 ## 📝 License
 

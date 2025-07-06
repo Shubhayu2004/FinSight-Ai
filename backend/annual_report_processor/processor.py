@@ -18,15 +18,7 @@ class AnnualReportProcessor:
                  llm_client_kwargs: Optional[Dict[str, Any]] = None,
                  max_context_tokens: int = 4000,
                  cache_dir: str = "cache"):
-        """
-        Initialize the annual report processor.
-        
-        Args:
-            llm_client_type: Type of LLM client ("openai", "huggingface", "local")
-            llm_client_kwargs: Additional arguments for LLM client
-            max_context_tokens: Maximum tokens for context
-            cache_dir: Directory to cache processed data
-        """
+
         self.max_context_tokens = max_context_tokens
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(exist_ok=True)
@@ -261,7 +253,7 @@ def main():
     
     # Initialize processor
     processor = AnnualReportProcessor(
-        llm_client_type="openai",  # or "local", "huggingface"
+        llm_client_type="fingpt",  # or "local", "huggingface"
         max_context_tokens=4000
     )
     
