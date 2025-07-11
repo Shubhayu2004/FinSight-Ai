@@ -1,44 +1,17 @@
-# Core dependencies for annual report processing
-PyMuPDF
-pdfplumber
-
-# Text processing and NLP
-spacy
-nltk
-regex
-
-# LLM clients and AI - FinGPT specific
-transformers
-torch>=2.2,<3.0
-accelerate
-peft
-requests
-huggingface_hub[hf_xet]
-
-# FastAPI and web framework
-fastapi
-uvicorn
-python-multipart
-pydantic
-
-# Utilities
-python-dotenv
-pathlib2
-dataclasses-json
-
-# Optional: For better text processing
-# Uncomment if you want to use these additional features
-sentence-transformers
-scikit-learn
+tensorflow
+nltk==3.5
+keras
+numpy
+streamlit==0.52.1
+seaborn==0.11.1
+tweepy
+textblob==0.15.3
+flask
 pandas
-numpy>=1.26.0,<2.2.0
-
-# Development and testing
-pytest
-pytest-asyncio
-black
-flake8
-
-# Additional dependencies that might be needed
-packaging>=20,<25
-torchvision 
+matplotlib
+scikit_learn
+statsmodels
+yfinance
+alpha_vantage==2.3.1
+gunicorn
+https://pypi.anaconda.org/berber/simple/tweet-preprocessor/0.5.0/tweet-preprocessor-0.5.0.tar.gz
