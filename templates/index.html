@@ -1,122 +1,33 @@
+<!-- File: templates/index.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Finance Agent</title>
+    <title>Stock Forecast</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6fa;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 500px;
-            margin: 60px auto;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            padding: 32px 24px 24px 24px;
-        }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        input[type="text"] {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-        button {
-            padding: 10px;
-            background: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        .results {
-            margin-top: 32px;
-            padding: 16px;
-            background: #f9fafb;
-            border-radius: 4px;
-            min-height: 40px;
-        }
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        input[type=text] { padding: 8px; width: 300px; }
+        input[type=submit] { padding: 8px 20px; }
+        .result { margin-top: 30px; }
+        img { margin-top: 20px; width: 600px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>AI Finance Agent</h1>
-        <form action="/insertintotable" method="post">
-            <label for="nm">Select Stock Symbol:</label>
-            <select id="nm" name="nm" required>
-                <option value="" disabled selected>Select a stock...</option>
-                {% for ticker in tickers %}
-                <option value="{{ ticker.symbol }}">{{ ticker.symbol }} - {{ ticker.name }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit">Analyze</button>
-        </form>
-        {% if not_found %}
-        <div class="results" style="color: red;">
-            Stock symbol not found or data unavailable. Please select another stock.
-        </div>
-        {% endif %}
-        {% if results %}
-        <div class="results">
-            <h2>Results for {{ results.quote }}</h2>
-            <ul>
-                <li><b>Open:</b> {{ results.open_s }}</li>
-                <li><b>Close:</b> {{ results.close_s }}</li>
-                <li><b>Adj Close:</b> {{ results.adj_close }}</li>
-                <li><b>High:</b> {{ results.high_s }}</li>
-                <li><b>Low:</b> {{ results.low_s }}</li>
-                <li><b>Volume:</b> {{ results.vol }}</li>
-            </ul>
-            <h3>Predictions</h3>
-            <ul>
-                <li><b>ARIMA Prediction:</b> {{ results.arima_pred }} (RMSE: {{ results.error_arima }})</li>
-                <li><b>LSTM Prediction:</b> {{ results.lstm_pred }} (RMSE: {{ results.error_lstm }})</li>
-                <li><b>Linear Regression Prediction:</b> {{ results.lr_pred }} (RMSE: {{ results.error_lr }})</li>
-            </ul>
-            <h3>Recommendation</h3>
-            <p><b>Idea:</b> {{ results.idea }}<br>
-            <b>Decision:</b> {{ results.decision }}</p>
-            <h3>Sentiment Analysis</h3>
-            <p>{{ results.tw_pol }}</p>
-            {% if results.tw_list %}
-            <ul>
-                {% for tweet in results.tw_list %}
-                <li>{{ tweet }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            <h3>Forecasted Prices for Next 7 Days</h3>
-            <ul>
-                {% for price in results.forecast_set %}
-                <li>{{ price }}</li>
-                {% endfor %}
-            </ul>
-            <h3>Plots</h3>
-            <img src="/static/Trends.png" alt="Trends" style="max-width:100%;"><br>
-            <img src="/static/ARIMA.png" alt="ARIMA" style="max-width:100%;"><br>
-            <img src="/static/LSTM.png" alt="LSTM" style="max-width:100%;"><br>
-            <img src="/static/LR.png" alt="Linear Regression" style="max-width:100%;"><br>
-            <img src="/static/SA.png" alt="Sentiment Analysis" style="max-width:100%;">
-        </div>
+    <h1>One-Day Stock Forecast</h1>
+    <form method="POST">
+        <input type="text" name="ticker" placeholder="Enter Ticker Symbol" required>
+        <input type="submit" value="Predict">
+    </form>
+
+    {% if prediction %}
+    <div class="result">
+        <h2>Results:</h2>
+        <p><strong>Latest Close Price:</strong> {{ prediction.latest }}</p>
+        <p><strong>XGBoost Prediction:</strong> {{ prediction.xgb }}</p>
+        <p><strong>LSTM Prediction:</strong> {{ prediction.lstm }}</p>
+        {% if plot_path %}
+        <img src="/{{ plot_path }}" alt="Stock Trend">
         {% endif %}
     </div>
+    {% endif %}
 </body>
-</html> 
+</html>
